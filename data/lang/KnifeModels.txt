@@ -1,0 +1,44 @@
+[en]
+KM_CHAT_PREFIX = !g[Knife Models]!n
+KM_CHAT_ALREADY = This knife is already selected!
+KM_CHAT_SELECTED = You have selected the knife !g%s
+KM_MENU_TITLE = \y< \rChoose your knife model \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yPage:\r
+KM_MENU_SELECTED = \y~ \rSELECTED \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[mk]
+KM_CHAT_PREFIX = !g[Knife Models]!n
+KM_CHAT_ALREADY = Ovoj nozh vekje e izbran!
+KM_CHAT_SELECTED = Go izbra nozhot !g%s
+KM_MENU_TITLE = \y< \rIzberi model za nozh \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yStranica:\r
+KM_MENU_SELECTED = \y~ \rIZBRAN \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[bg]
+KM_CHAT_PREFIX = !g[Knife Models]!n
+KM_CHAT_ALREADY = Tozi noj veche e izbran!
+KM_CHAT_SELECTED = Izbra noja !g%s
+KM_MENU_TITLE = \y< \rIzberi model za noja \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yStranica:\r
+KM_MENU_SELECTED = \y~ \rIZBRAN \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[ro]
+KM_CHAT_PREFIX = !g[Modele cutit]!n
+KM_CHAT_ALREADY = Acest cutit este deja selectat!
+KM_CHAT_SELECTED = Ai ales cutitul !g%s
+KM_MENU_TITLE = \y< \rAlegeti modelul de cutit \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yPagina:\r
+KM_MENU_SELECTED = \y~ \rSELECTAT \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[pl]
+KM_CHAT_PREFIX = !g[Modele Kos]!n
+KM_CHAT_ALREADY = Ta Kosa jest wlasnie uzywana!
+KM_CHAT_SELECTED = Wybrales Kose !g%s
+KM_MENU_TITLE = \y< \rWybierz swoj model Kosy \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yStrona:\r
+KM_MENU_SELECTED = \y~ \rWybrano \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
