@@ -42,3 +42,12 @@ KM_MENU_TITLE = \y< \rWybierz swoj model Kosy \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \yStrona:\r
 KM_MENU_SELECTED = \y~ \rWybrano \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[bp] 
+KM_CHAT_PREFIX = !g[Knife Models]!n 
+KM_CHAT_ALREADY = Voce ja escolheu esta faca! 
+KM_CHAT_SELECTED = Voce selecionou a faca !g%s 
+KM_MENU_TITLE = \y< \rEscolha sua skin \y> 
+KM_MENU_TITLE_PAGE = ^n\r-- \yPagina:\r 
+KM_MENU_SELECTED = \y~ \rSELECIONADA \y~ 
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
