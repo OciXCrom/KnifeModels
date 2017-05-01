@@ -51,3 +51,21 @@ KM_MENU_TITLE = \y< \rEscolha sua skin \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \yPagina:\r 
 KM_MENU_SELECTED = \y~ \rSELECIONADA \y~ 
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[es]
+KM_CHAT_PREFIX = !g[Modelos de cuchillos]!n
+KM_CHAT_ALREADY = Este cuchillo ya fue seleccionado!
+KM_CHAT_SELECTED = Seleccionaste el cuchillo !g%s
+KM_MENU_TITLE = \y< \rElige el modelo de tu cuchillo \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yPagina:\r
+KM_MENU_SELECTED = \y~ \rSELECCIONADO \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[lt]
+KM_CHAT_PREFIX = !g[Peilių modeliai]!n
+KM_CHAT_ALREADY = Jūs jau pasirinkę šį peilį!
+KM_CHAT_SELECTED = Pasirinkote peilį !g%s
+KM_MENU_TITLE = \y< \rPasirinkite peilio modelį \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yPuslapis:\r
+KM_MENU_SELECTED = \y~ \rPASIRINKTA\y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
