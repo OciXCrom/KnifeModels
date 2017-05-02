@@ -69,3 +69,12 @@ KM_MENU_TITLE = \y< \rPasirinkite peilio modelį \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \yPuslapis:\r
 KM_MENU_SELECTED = \y~ \rPASIRINKTA\y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[hu]
+KM_CHAT_PREFIX = !g[Kes Modellek]!n
+KM_CHAT_ALREADY = Ez a kes van jelenleg is kivalasztva!
+KM_CHAT_SELECTED = Kivalasztottad a !g%s kes-t.
+KM_MENU_TITLE = \y< \rValaszd ki a kes modellt \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yOldal:\r
+KM_MENU_SELECTED = \y~ \rVALASZ \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
