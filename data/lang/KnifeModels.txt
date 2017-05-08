@@ -78,3 +78,12 @@ KM_MENU_TITLE = \y< \rValaszd ki a kes modellt \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \yOldal:\r
 KM_MENU_SELECTED = \y~ \rVALASZ \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[ko]
+KM_CHAT_PREFIX = !g[나이프 모델]!n
+KM_CHAT_ALREADY = 이칼은 준비가되어있다!
+KM_CHAT_SELECTED = 당신은 나이프를 선택했습니다 !g%s
+KM_MENU_TITLE = \y< \r원하시는 나이프를 선택해주세요 \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \y페이지:\r
+KM_MENU_SELECTED = \y~ \r선택된 \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
