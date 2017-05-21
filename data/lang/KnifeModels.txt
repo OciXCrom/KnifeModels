@@ -87,3 +87,12 @@ KM_MENU_TITLE = \y< \r원하시는 나이프를 선택해주세요 \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \y페이지:\r
 KM_MENU_SELECTED = \y~ \r선택된 \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[de]
+KM_CHAT_PREFIX = !g[Messer Models]!n
+KM_CHAT_ALREADY = Dieses Messer ist bereits ausgewählt!
+KM_CHAT_SELECTED = Du hast das Messer !g%s !nausgewählt
+KM_MENU_TITLE = \y< \rWähle dein Messer aus \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \ySeite:\r
+KM_MENU_SELECTED = \y~ \rAUSGEWÄHLT \y~
+KM_MENU_VIP_ONLY = \y~ \rVIP \y~
