@@ -96,3 +96,12 @@ KM_MENU_TITLE = \y< \rWähle dein Messer aus \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \ySeite:\r
 KM_MENU_SELECTED = \y~ \rAUSGEWÄHLT \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
+
+[tr]
+KM_CHAT_PREFIX = !g[Bicak Modelleri]!n
+KM_CHAT_ALREADY = Secilemez! Suanda Secili Olan Model
+KM_CHAT_SELECTED = !g%s Isimli Bicagi Sectiniz
+KM_MENU_TITLE = \y< \rBicak Model Menusu \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yILERI:\r
+KM_MENU_SELECTED = \y~ \rSU ANDA SECILI! \y~
+KM_MENU_VIP_ONLY = \y~ \rYETKILIYE OZEL! \y~ 
