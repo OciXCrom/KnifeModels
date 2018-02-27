@@ -1,10 +1,9 @@
 #include <amxmodx>
 #include <amxmisc>
 #include <fakemeta>
-#include <formatin>
 #include <hamsandwich>
 
-#define PLUGIN_VERSION "2.0"
+#define PLUGIN_VERSION "2.1"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 
@@ -188,7 +187,7 @@ public OnEmitSound(id, iChannel, const szSample[])
 
 public ShowMenu(id)
 {
-	new szTitle[128]
+	new szTitle[128], szItem[64]
 	formatex(szTitle, charsmax(szTitle), "%L", id, "KM_MENU_TITLE")
 	
 	new iMenu = menu_create(szTitle, "MenuHandler")
@@ -198,13 +197,27 @@ public ShowMenu(id)
 		ArrayGetArray(g_aKnives, i, eKnife)
 		
 		if(eKnife[FLAG] == ADMIN_ALL || iFlags & eKnife[FLAG])
-			menu_additem(iMenu, formatin("%s %s", eKnife[NAME], g_iKnife[id] == i ? formatin("%L", id, "KM_MENU_SELECTED") : formatin("")), eKnife[NAME])
+		{
+			if(g_iKnife[id] == i)
+			{
+				formatex(szItem, charsmax(szItem), "%s %L", eKnife[NAME], id, "KM_MENU_SELECTED")
+				menu_additem(iMenu, szItem, eKnife[NAME])
+			}
+			else
+				menu_additem(iMenu, eKnife[NAME], eKnife[NAME])
+		}
 		else
-			menu_additem(iMenu, formatin("%s %L", eKnife[NAME], id, "KM_MENU_VIP_ONLY"), eKnife[NAME], eKnife[FLAG])
+		{
+			formatex(szItem, charsmax(szItem), "%s %L", eKnife[NAME], id, "KM_MENU_VIP_ONLY")
+			menu_additem(iMenu, szItem, eKnife[NAME], eKnife[FLAG])
+		}
 	}
 	
 	if(menu_pages(iMenu) > 1)
-		menu_setprop(iMenu, MPROP_TITLE, formatin("%s%L", szTitle, id, "KM_MENU_TITLE_PAGE"))
+	{
+		formatex(szItem, charsmax(szItem), "%s%L", szTitle, id, "KM_MENU_TITLE_PAGE")
+		menu_setprop(iMenu, MPROP_TITLE, szItem)
+	}
 		
 	menu_display(id, iMenu)
 	return PLUGIN_HANDLED
