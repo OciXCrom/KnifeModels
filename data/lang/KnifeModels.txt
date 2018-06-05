@@ -62,10 +62,10 @@ KM_MENU_SELECTED = \y~ \rSELECCIONADO \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 
 [lt]
-KM_CHAT_PREFIX = !g[Peilių modeliai]!n
-KM_CHAT_ALREADY = Jūs jau pasirinkę šį peilį!
-KM_CHAT_SELECTED = Pasirinkote peilį !g%s
-KM_MENU_TITLE = \y< \rPasirinkite peilio modelį \y>
+KM_CHAT_PREFIX = !g[Peiliu modeliai]!n
+KM_CHAT_ALREADY = Jus jau pasirinke �i peili!
+KM_CHAT_SELECTED = Pasirinkote peili !g%s
+KM_MENU_TITLE = \y< \rPasirinkite peilio modeli \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \yPuslapis:\r
 KM_MENU_SELECTED = \y~ \rPASIRINKTA\y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
@@ -79,22 +79,13 @@ KM_MENU_TITLE_PAGE = ^n\r-- \yOldal:\r
 KM_MENU_SELECTED = \y~ \rVALASZ \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 
-[ko]
-KM_CHAT_PREFIX = !g[나이프 모델]!n
-KM_CHAT_ALREADY = 이칼은 준비가되어있다!
-KM_CHAT_SELECTED = 당신은 나이프를 선택했습니다 !g%s
-KM_MENU_TITLE = \y< \r원하시는 나이프를 선택해주세요 \y>
-KM_MENU_TITLE_PAGE = ^n\r-- \y페이지:\r
-KM_MENU_SELECTED = \y~ \r선택된 \y~
-KM_MENU_VIP_ONLY = \y~ \rVIP \y~
-
 [de]
 KM_CHAT_PREFIX = !g[Messer Models]!n
-KM_CHAT_ALREADY = Dieses Messer ist bereits ausgewählt!
-KM_CHAT_SELECTED = Du hast das Messer !g%s !nausgewählt
-KM_MENU_TITLE = \y< \rWähle dein Messer aus \y>
+KM_CHAT_ALREADY = Dieses Messer ist bereits ausgew�hlt!
+KM_CHAT_SELECTED = Du hast das Messer !g%s !nausgew�hlt
+KM_MENU_TITLE = \y< \rW�hle dein Messer aus \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \ySeite:\r
-KM_MENU_SELECTED = \y~ \rAUSGEWÄHLT \y~
+KM_MENU_SELECTED = \y~ \rAUSGEW�HLT \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 
 [tr]
