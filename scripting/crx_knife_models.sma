@@ -3,7 +3,7 @@
 #include <fakemeta>
 #include <hamsandwich>
 
-#define PLUGIN_VERSION "2.1"
+#define PLUGIN_VERSION "2.1.1"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 
@@ -88,7 +88,7 @@ ReadFile()
 			
 			switch(szData[0])
 			{
-				case EOS, ';': continue
+				case EOS, '#', ';': continue
 				case '[':
 				{
 					if(szData[strlen(szData) - 1] == ']')
@@ -100,6 +100,16 @@ ReadFile()
 						replace(szData, charsmax(szData), "[", "")
 						replace(szData, charsmax(szData), "]", "")
 						copy(eKnife[NAME], charsmax(eKnife[NAME]), szData)
+						
+						eKnife[V_MODEL][0] = EOS
+						eKnife[P_MODEL][0] = EOS
+						eKnife[DEPLOY_SOUND][0] = EOS
+						eKnife[HIT_SOUND][0] = EOS
+						eKnife[HITWALL_SOUND][0] = EOS
+						eKnife[SLASH_SOUND][0] = EOS
+						eKnife[STAB_SOUND][0] = EOS
+						eKnife[FLAG] = ADMIN_ALL
+						eKnife[HAS_CUSTOM_SOUND] = false
 					}
 					else continue
 				}
