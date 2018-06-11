@@ -1,5 +1,6 @@
 #include <amxmodx>
 #include <amxmisc>
+#include <cromchat>
 #include <fakemeta>
 #include <hamsandwich>
 
@@ -36,8 +37,7 @@ new Array:g_aKnives,
 	g_eKnife[33][Knives],
 	g_iKnife[33],
 	g_pAtSpawn,
-	g_iKnivesNum,
-	g_iSayText
+	g_iKnivesNum
 
 public plugin_init()
 {
@@ -49,7 +49,7 @@ public plugin_init()
 	
 	register_dictionary("KnifeModels.txt")
 	
-	register_event("CurWeapon", "OnSelectKnife", "be", "1=1", "2=29")
+	RegisterHam(Ham_Item_Deploy, "weapon_knife", "OnSelectKnife", 1)
 	RegisterHam(Ham_Spawn, "player", "OnPlayerSpawn", 1)
 	register_forward(FM_EmitSound,	"OnEmitSound")
 	
@@ -57,7 +57,6 @@ public plugin_init()
 	register_clcmd("say_team /knife", "ShowMenu")
 	
 	g_pAtSpawn = register_cvar("km_open_at_spawn", "0")
-	g_iSayText = get_user_msgid("SayText")
 }
 
 public plugin_precache()
@@ -121,43 +120,29 @@ ReadFile()
 					if(equal(szKey, "FLAG"))
 						eKnife[FLAG] = read_flags(szValue)
 					else if(equal(szKey, "V_MODEL"))
-					{
 						copy(eKnife[V_MODEL], charsmax(eKnife[V_MODEL]), szValue)
-						precache_model(szValue)
-					}
 					else if(equal(szKey, "P_MODEL"))
-					{
 						copy(eKnife[P_MODEL], charsmax(eKnife[P_MODEL]), szValue)
-						precache_model(szValue)
-					}
 					else if(equal(szKey, "DEPLOY_SOUND"))
-					{
-						eKnife[HAS_CUSTOM_SOUND] = true
 						copy(eKnife[DEPLOY_SOUND], charsmax(eKnife[DEPLOY_SOUND]), szValue)
-						precache_sound(szValue)
-					}
 					else if(equal(szKey, "HIT_SOUND"))
-					{
-						eKnife[HAS_CUSTOM_SOUND] = true
 						copy(eKnife[HIT_SOUND], charsmax(eKnife[HIT_SOUND]), szValue)
-						precache_sound(szValue)
-					}
 					else if(equal(szKey, "HITWALL_SOUND"))
-					{
-						eKnife[HAS_CUSTOM_SOUND] = true
 						copy(eKnife[HITWALL_SOUND], charsmax(eKnife[HITWALL_SOUND]), szValue)
-						precache_sound(szValue)
-					}
 					else if(equal(szKey, "SLASH_SOUND"))
-					{
-						eKnife[HAS_CUSTOM_SOUND] = true
 						copy(eKnife[SLASH_SOUND], charsmax(eKnife[SLASH_SOUND]), szValue)
-						precache_sound(szValue)
-					}
 					else if(equal(szKey, "STAB_SOUND"))
+						copy(eKnife[STAB_SOUND], charsmax(eKnife[STAB_SOUND]), szValue)
+					else continue
+					
+					static const szModelArg[] = "_MODEL"
+					static const szSoundArg[] = "_SOUND"
+					
+					if(contain(szKey, szModelArg))
+						precache_model(szValue)
+					else if(contain(szKey, szSoundArg))
 					{
 						eKnife[HAS_CUSTOM_SOUND] = true
-						copy(eKnife[STAB_SOUND], charsmax(eKnife[STAB_SOUND]), szValue)
 						precache_sound(szValue)
 					}
 				}
@@ -180,16 +165,16 @@ public client_putinserver(id)
 
 public OnEmitSound(id, iChannel, const szSample[])
 {
-	if(!is_user_connected(id) || !g_eKnife[id][HAS_CUSTOM_SOUND] || !is_knife_sound(szSample))
+	if(!is_user_connected(id) || !g_eKnife[id][HAS_CUSTOM_SOUND] || !IsKnifeSound(szSample))
 		return FMRES_IGNORED
 	
-	switch(detect_knife_sound(szSample))
+	switch(DetectKnifeSound(szSample))
 	{
-		case SOUND_DEPLOY: if(g_eKnife[id][DEPLOY_SOUND][0]) { play_knife_sound(id, g_eKnife[id][DEPLOY_SOUND][0]); return FMRES_SUPERCEDE; }
-		case SOUND_HIT: if(g_eKnife[id][HIT_SOUND][0]) { play_knife_sound(id, g_eKnife[id][HIT_SOUND][0]); return FMRES_SUPERCEDE; }
-		case SOUND_HITWALL: if(g_eKnife[id][HITWALL_SOUND][0]) { play_knife_sound(id, g_eKnife[id][HITWALL_SOUND][0]); return FMRES_SUPERCEDE; }
-		case SOUND_SLASH: if(g_eKnife[id][SLASH_SOUND][0]) { play_knife_sound(id, g_eKnife[id][SLASH_SOUND][0]); return FMRES_SUPERCEDE; }
-		case SOUND_STAB: if(g_eKnife[id][STAB_SOUND][0]) { play_knife_sound(id, g_eKnife[id][STAB_SOUND][0]); return FMRES_SUPERCEDE; }
+		case SOUND_DEPLOY: 		if(g_eKnife[id][DEPLOY_SOUND][0]) 		{ PlayKnifeSound(id, g_eKnife[id][DEPLOY_SOUND][0]); 	return FMRES_SUPERCEDE; }
+		case SOUND_HIT: 		if(g_eKnife[id][HIT_SOUND][0]) 			{ PlayKnifeSound(id, g_eKnife[id][HIT_SOUND][0]); 		return FMRES_SUPERCEDE; }
+		case SOUND_HITWALL:		if(g_eKnife[id][HITWALL_SOUND][0]) 		{ PlayKnifeSound(id, g_eKnife[id][HITWALL_SOUND][0]); 	return FMRES_SUPERCEDE; }
+		case SOUND_SLASH: 		if(g_eKnife[id][SLASH_SOUND][0]) 		{ PlayKnifeSound(id, g_eKnife[id][SLASH_SOUND][0]);		return FMRES_SUPERCEDE; }
+		case SOUND_STAB: 		if(g_eKnife[id][STAB_SOUND][0]) 		{ PlayKnifeSound(id, g_eKnife[id][STAB_SOUND][0]); 		return FMRES_SUPERCEDE; }
 	}
 	
 	return FMRES_IGNORED
@@ -238,18 +223,18 @@ public MenuHandler(id, iMenu, iItem)
 	if(iItem != MENU_EXIT)
 	{
 		if(g_iKnife[id] == iItem)
-			ColorChat(id, "%L", id, "KM_CHAT_ALREADY")
+			CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_CHAT_ALREADY")
 		else
 		{
 			g_iKnife[id] = iItem
 			ArrayGetArray(g_aKnives, iItem, g_eKnife[id])
 			
 			if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
-				OnSelectKnife(id)
+				RefreshKnifeModel(id)
 			
 			new szName[32], iUnused
 			menu_item_getinfo(iMenu, iItem, iUnused, szName, charsmax(szName), .callback = iUnused)
-			ColorChat(id, "%L", id, "KM_CHAT_SELECTED", szName)
+			CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_CHAT_SELECTED", szName)
 		}
 	}
 	
@@ -266,7 +251,15 @@ public OnPlayerSpawn(id)
 	}
 }
 
-public OnSelectKnife(id)
+public OnSelectKnife(iEnt)
+{
+	new id = pev(iEnt, pev_owner)
+	
+	if(is_user_connected(id))
+		RefreshKnifeModel(id)
+}
+
+RefreshKnifeModel(id)
 {
 	set_pev(id, pev_viewmodel2, g_eKnife[id][V_MODEL])
 	set_pev(id, pev_weaponmodel2, g_eKnife[id][P_MODEL])
@@ -283,10 +276,10 @@ PushKnife(eKnife[Knives])
 	ArrayPushArray(g_aKnives, eKnife)
 }
 
-bool:is_knife_sound(const szSample[])
+bool:IsKnifeSound(const szSample[])
 	return bool:equal(szSample[8], "kni", 3)
 
-detect_knife_sound(const szSample[])
+DetectKnifeSound(const szSample[])
 {
 	static iSound
 	iSound = SOUND_NONE
@@ -303,33 +296,5 @@ detect_knife_sound(const szSample[])
 	return iSound
 }
 
-play_knife_sound(id, const szSound[])
+PlayKnifeSound(id, const szSound[])
 	engfunc(EngFunc_EmitSound, id, CHAN_WEAPON, szSound, 1.0, ATTN_NORM, 0, PITCH_NORM)
-	
-ColorChat(const id, const szInput[], any:...)
-{
-	new iPlayers[32], iCount = 1
-	static szMessage[191]
-	vformat(szMessage, charsmax(szMessage), szInput, 3)
-	format(szMessage[0], charsmax(szMessage), "%L %s", id ? id : LANG_PLAYER, "KM_CHAT_PREFIX", szMessage)
-	
-	replace_all(szMessage, charsmax(szMessage), "!g", "^4")
-	replace_all(szMessage, charsmax(szMessage), "!n", "^1")
-	replace_all(szMessage, charsmax(szMessage), "!t", "^3")
-	
-	if(id)
-		iPlayers[0] = id
-	else
-		get_players(iPlayers, iCount, "ch")
-	
-	for(new i; i < iCount; i++)
-	{
-		if(is_user_connected(iPlayers[i]))
-		{
-			message_begin(MSG_ONE_UNRELIABLE, g_iSayText, _, iPlayers[i])
-			write_byte(iPlayers[i])
-			write_string(szMessage)
-			message_end()
-		}
-	}
-}
