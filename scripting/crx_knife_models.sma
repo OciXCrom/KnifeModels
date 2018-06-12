@@ -4,7 +4,7 @@
 #include <fakemeta>
 #include <hamsandwich>
 
-#define PLUGIN_VERSION "2.1.1"
+#define PLUGIN_VERSION "2.2"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 
