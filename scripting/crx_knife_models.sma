@@ -4,7 +4,7 @@
 #include <fakemeta>
 #include <hamsandwich>
 
-#define PLUGIN_VERSION "2.2"
+#define PLUGIN_VERSION "2.2.1"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 
@@ -138,9 +138,9 @@ ReadFile()
 					static const szModelArg[] = "_MODEL"
 					static const szSoundArg[] = "_SOUND"
 					
-					if(contain(szKey, szModelArg))
+					if(contain(szKey, szModelArg) != -1)
 						precache_model(szValue)
-					else if(contain(szKey, szSoundArg))
+					else if(contain(szKey, szSoundArg) != -1)
 					{
 						eKnife[HAS_CUSTOM_SOUND] = true
 						precache_sound(szValue)
@@ -297,4 +297,4 @@ DetectKnifeSound(const szSample[])
 }
 
 PlayKnifeSound(id, const szSound[])
-	engfunc(EngFunc_EmitSound, id, CHAN_WEAPON, szSound, 1.0, ATTN_NORM, 0, PITCH_NORM)
+	engfunc(EngFunc_EmitSound, id, CHAN_AUTO, szSound, 1.0, ATTN_NORM, 0, PITCH_NORM)
