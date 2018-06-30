@@ -4,7 +4,9 @@
 #include <fakemeta>
 #include <hamsandwich>
 
-#define PLUGIN_VERSION "2.2.1"
+native crxranks_get_user_level(id)
+
+#define PLUGIN_VERSION "2.3"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 
@@ -29,13 +31,16 @@ enum _:Knives
 	SLASH_SOUND[128],
 	STAB_SOUND[128],
 	FLAG,
+	LEVEL,
 	bool:HAS_CUSTOM_SOUND
 }
 
 new Array:g_aKnives,
 	bool:g_bFirstTime[33],
+	bool:g_bRankSystem,
 	g_eKnife[33][Knives],
 	g_iKnife[33],
+	g_iCallback,
 	g_pAtSpawn,
 	g_iKnivesNum
 
@@ -56,15 +61,25 @@ public plugin_init()
 	register_clcmd("say /knife", "ShowMenu")
 	register_clcmd("say_team /knife", "ShowMenu")
 	
+	g_iCallback = menu_makecallback("CheckKnifeAccess")
 	g_pAtSpawn = register_cvar("km_open_at_spawn", "0")
 }
 
 public plugin_precache()
 {
+	if(LibraryExists("crxranks", LibType_Library))
+		g_bRankSystem = true
+		
 	g_aKnives = ArrayCreate(Knives)
 	ReadFile()
 }
 
+public plugin_natives()
+	set_native_filter("native_filter")
+	
+public native_filter(const szNative[], id, iTrap)
+	return (!iTrap && equal(szNative, "crxranks_get_user_level")) ? PLUGIN_HANDLED : PLUGIN_CONTINUE
+	
 public plugin_end()
 	ArrayDestroy(g_aKnives)
 
@@ -109,6 +124,9 @@ ReadFile()
 						eKnife[STAB_SOUND][0] = EOS
 						eKnife[FLAG] = ADMIN_ALL
 						eKnife[HAS_CUSTOM_SOUND] = false
+						
+						if(g_bRankSystem)
+							eKnife[LEVEL] = 0
 					}
 					else continue
 				}
@@ -119,6 +137,8 @@ ReadFile()
 					
 					if(equal(szKey, "FLAG"))
 						eKnife[FLAG] = read_flags(szValue)
+					else if(equal(szKey, "LEVEL") && g_bRankSystem)
+						eKnife[LEVEL] = str_to_num(szValue)
 					else if(equal(szKey, "V_MODEL"))
 						copy(eKnife[V_MODEL], charsmax(eKnife[V_MODEL]), szValue)
 					else if(equal(szKey, "P_MODEL"))
@@ -182,30 +202,30 @@ public OnEmitSound(id, iChannel, const szSample[])
 
 public ShowMenu(id)
 {
-	new szTitle[128], szItem[64]
+	static eKnife[Knives]
+	new szTitle[128], szItem[128], iLevel
 	formatex(szTitle, charsmax(szTitle), "%L", id, "KM_MENU_TITLE")
-	
+
+	if(g_bRankSystem)
+		iLevel = crxranks_get_user_level(id)
+		
 	new iMenu = menu_create(szTitle, "MenuHandler")
 	
-	for(new eKnife[Knives], iFlags = get_user_flags(id), i; i < g_iKnivesNum; i++)
+	for(new iFlags = get_user_flags(id), i; i < g_iKnivesNum; i++)
 	{
 		ArrayGetArray(g_aKnives, i, eKnife)
+		copy(szItem, charsmax(szItem), eKnife[NAME])
 		
-		if(eKnife[FLAG] == ADMIN_ALL || iFlags & eKnife[FLAG])
-		{
-			if(g_iKnife[id] == i)
-			{
-				formatex(szItem, charsmax(szItem), "%s %L", eKnife[NAME], id, "KM_MENU_SELECTED")
-				menu_additem(iMenu, szItem, eKnife[NAME])
-			}
-			else
-				menu_additem(iMenu, eKnife[NAME], eKnife[NAME])
-		}
-		else
-		{
-			formatex(szItem, charsmax(szItem), "%s %L", eKnife[NAME], id, "KM_MENU_VIP_ONLY")
-			menu_additem(iMenu, szItem, eKnife[NAME], eKnife[FLAG])
-		}
+		if(g_bRankSystem && eKnife[LEVEL] && iLevel < eKnife[LEVEL])
+			format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_LEVEL", eKnife[LEVEL])
+		
+		if(eKnife[FLAG] != ADMIN_ALL && !(iFlags & eKnife[FLAG]))
+			format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_VIP_ONLY")
+			
+		if(g_iKnife[id] == i)
+			format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_SELECTED")
+		
+		menu_additem(iMenu, szItem, eKnife[NAME], eKnife[FLAG], g_iCallback)
 	}
 	
 	if(menu_pages(iMenu) > 1)
@@ -222,24 +242,36 @@ public MenuHandler(id, iMenu, iItem)
 {
 	if(iItem != MENU_EXIT)
 	{
-		if(g_iKnife[id] == iItem)
-			CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_CHAT_ALREADY")
-		else
-		{
-			g_iKnife[id] = iItem
-			ArrayGetArray(g_aKnives, iItem, g_eKnife[id])
-			
-			if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
-				RefreshKnifeModel(id)
-			
-			new szName[32], iUnused
-			menu_item_getinfo(iMenu, iItem, iUnused, szName, charsmax(szName), .callback = iUnused)
-			CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_CHAT_SELECTED", szName)
-		}
+		g_iKnife[id] = iItem
+		ArrayGetArray(g_aKnives, iItem, g_eKnife[id])
+		
+		if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
+			RefreshKnifeModel(id)
+		
+		new szName[32], iUnused
+		menu_item_getinfo(iMenu, iItem, iUnused, szName, charsmax(szName), .callback = iUnused)
+		CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_CHAT_SELECTED", szName)
 	}
 	
 	menu_destroy(iMenu)
 	return PLUGIN_HANDLED
+}
+
+public CheckKnifeAccess(id, iMenu, iItem)
+{
+	if(g_iKnife[id] == iItem)
+		return ITEM_DISABLED
+		
+	static eKnife[Knives]
+	ArrayGetArray(g_aKnives, iItem, eKnife)
+	
+	if(g_bRankSystem && eKnife[LEVEL] && crxranks_get_user_level(id) < eKnife[LEVEL])
+		return ITEM_DISABLED
+		
+	if(eKnife[FLAG] != ADMIN_ALL && !(get_user_flags(id) & eKnife[FLAG]))
+		return ITEM_DISABLED
+		
+	return ITEM_ENABLED
 }
 
 public OnPlayerSpawn(id)
