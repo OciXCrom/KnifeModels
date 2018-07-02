@@ -442,6 +442,9 @@ UseVault(const id, const bool:bSave)
 		static iKnife
 		iKnife = nvault_get(g_iVault, g_szAuth[id])
 		
+		if(iKnife > g_iKnivesNum)
+			iKnife = 0
+		
 		if(iKnife && HasKnifeAccess(id, iKnife))
 		{
 			g_iKnife[id] = iKnife
