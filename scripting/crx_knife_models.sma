@@ -3,12 +3,37 @@
 #include <cromchat>
 #include <fakemeta>
 #include <hamsandwich>
+#include <nvault>
 
+native crxranks_get_max_levels()
+native crxranks_get_rank_by_level(level, buffer[], len)
 native crxranks_get_user_level(id)
 
-#define PLUGIN_VERSION "2.3"
+new const g_szNatives[][] =
+{
+	"crxranks_get_max_levels",
+	"crxranks_get_rank_by_level",
+	"crxranks_get_user_level"
+}
+
+#if defined client_disconnected
+	#define client_disconnect client_disconnected
+#endif
+
+#define PLUGIN_VERSION "2.4"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
+#define DELAY_ON_CONNECT 2.5
+#define MAX_SOUND_LENGTH 128
+#define MAX_AUTHID_LENGTH 35
+
+#if !defined MAX_NAME_LENGTH
+	#define MAX_NAME_LENGTH 32
+#endif
+
+#if !defined MAX_PLAYERS
+	#define MAX_PLAYERS 32
+#endif
 
 enum
 {
@@ -22,27 +47,33 @@ enum
 
 enum _:Knives
 {
-	NAME[32],
-	V_MODEL[128],
-	P_MODEL[128],
-	DEPLOY_SOUND[128],
-	HIT_SOUND[128],
-	HITWALL_SOUND[128],
-	SLASH_SOUND[128],
-	STAB_SOUND[128],
+	NAME[MAX_NAME_LENGTH],
+	V_MODEL[MAX_SOUND_LENGTH],
+	P_MODEL[MAX_SOUND_LENGTH],
+	DEPLOY_SOUND[MAX_SOUND_LENGTH],
+	HIT_SOUND[MAX_SOUND_LENGTH],
+	HITWALL_SOUND[MAX_SOUND_LENGTH],
+	SLASH_SOUND[MAX_SOUND_LENGTH],
+	STAB_SOUND[MAX_SOUND_LENGTH],
+	SELECT_SOUND[MAX_SOUND_LENGTH],
 	FLAG,
 	LEVEL,
+	bool:SHOW_RANK,
 	bool:HAS_CUSTOM_SOUND
 }
 
 new Array:g_aKnives,
-	bool:g_bFirstTime[33],
+	bool:g_bFirstTime[MAX_PLAYERS + 1],
 	bool:g_bRankSystem,
-	g_eKnife[33][Knives],
-	g_iKnife[33],
+	g_eKnife[MAX_PLAYERS + 1][Knives],
+	g_szAuth[MAX_PLAYERS + 1][MAX_AUTHID_LENGTH],
+	g_iKnife[MAX_PLAYERS + 1],
 	g_iCallback,
 	g_pAtSpawn,
-	g_iKnivesNum
+	g_pSaveChoice,
+	g_iSaveChoice,
+	g_iKnivesNum,
+	g_iVault
 
 public plugin_init()
 {
@@ -63,6 +94,7 @@ public plugin_init()
 	
 	g_iCallback = menu_makecallback("CheckKnifeAccess")
 	g_pAtSpawn = register_cvar("km_open_at_spawn", "0")
+	g_pSaveChoice = register_cvar("km_save_choice", "0")
 }
 
 public plugin_precache()
@@ -74,14 +106,40 @@ public plugin_precache()
 	ReadFile()
 }
 
+public plugin_cfg()
+{
+	g_iSaveChoice = get_pcvar_num(g_pSaveChoice)
+	
+	if(g_iSaveChoice)
+		g_iVault = nvault_open("KnifeModels")
+}
+
 public plugin_natives()
 	set_native_filter("native_filter")
 	
 public native_filter(const szNative[], id, iTrap)
-	return (!iTrap && equal(szNative, "crxranks_get_user_level")) ? PLUGIN_HANDLED : PLUGIN_CONTINUE
+{
+	if(!iTrap)
+	{
+		static i
+		
+		for(i = 0; i < sizeof(g_szNatives); i++)
+		{
+			if(equal(szNative, g_szNatives[i]))
+				return PLUGIN_HANDLED
+		}
+	}
+	
+	return PLUGIN_CONTINUE
+}
 	
 public plugin_end()
+{
 	ArrayDestroy(g_aKnives)
+	
+	if(g_iSaveChoice)
+		nvault_close(g_iVault)
+}
 
 ReadFile()
 {
@@ -92,8 +150,11 @@ ReadFile()
 	
 	if(iFilePointer)
 	{
-		new szData[160], szKey[32], szValue[128]
-		new eKnife[Knives]
+		new szData[160], szKey[32], szValue[128], iMaxLevels
+		new eKnife[Knives], bool:bCustom
+		
+		if(g_bRankSystem)
+			iMaxLevels = crxranks_get_max_levels()
 		
 		while(!feof(iFilePointer))
 		{
@@ -122,11 +183,15 @@ ReadFile()
 						eKnife[HITWALL_SOUND][0] = EOS
 						eKnife[SLASH_SOUND][0] = EOS
 						eKnife[STAB_SOUND][0] = EOS
+						eKnife[SELECT_SOUND][0] = EOS
 						eKnife[FLAG] = ADMIN_ALL
 						eKnife[HAS_CUSTOM_SOUND] = false
 						
 						if(g_bRankSystem)
+						{
 							eKnife[LEVEL] = 0
+							eKnife[SHOW_RANK] = false
+						}
 					}
 					else continue
 				}
@@ -134,11 +199,14 @@ ReadFile()
 				{
 					strtok(szData, szKey, charsmax(szKey), szValue, charsmax(szValue), '=')
 					trim(szKey); trim(szValue)
+					bCustom = true
 					
 					if(equal(szKey, "FLAG"))
 						eKnife[FLAG] = read_flags(szValue)
 					else if(equal(szKey, "LEVEL") && g_bRankSystem)
-						eKnife[LEVEL] = str_to_num(szValue)
+						eKnife[LEVEL] = clamp(str_to_num(szValue), 0, iMaxLevels)
+					else if(equal(szKey, "SHOW_RANK") && g_bRankSystem)
+						eKnife[SHOW_RANK] = _:clamp(str_to_num(szValue), false, true)
 					else if(equal(szKey, "V_MODEL"))
 						copy(eKnife[V_MODEL], charsmax(eKnife[V_MODEL]), szValue)
 					else if(equal(szKey, "P_MODEL"))
@@ -153,6 +221,11 @@ ReadFile()
 						copy(eKnife[SLASH_SOUND], charsmax(eKnife[SLASH_SOUND]), szValue)
 					else if(equal(szKey, "STAB_SOUND"))
 						copy(eKnife[STAB_SOUND], charsmax(eKnife[STAB_SOUND]), szValue)
+					else if(equal(szKey, "SELECT_SOUND"))
+					{
+						bCustom = false
+						copy(eKnife[SELECT_SOUND], charsmax(eKnife[SELECT_SOUND]), szValue)
+					}
 					else continue
 					
 					static const szModelArg[] = "_MODEL"
@@ -162,8 +235,10 @@ ReadFile()
 						precache_model(szValue)
 					else if(contain(szKey, szSoundArg) != -1)
 					{
-						eKnife[HAS_CUSTOM_SOUND] = true
 						precache_sound(szValue)
+						
+						if(bCustom)
+							eKnife[HAS_CUSTOM_SOUND] = true
 					}
 				}
 			}
@@ -176,11 +251,23 @@ ReadFile()
 	}
 }
 
-public client_putinserver(id)
+public client_authorized(id)
 {
 	g_bFirstTime[id] = true
 	ArrayGetArray(g_aKnives, 0, g_eKnife[id])
 	g_iKnife[id] = 0
+	
+	if(g_iSaveChoice)
+	{
+		get_user_authid(id, g_szAuth[id], charsmax(g_szAuth[]))
+		set_task(DELAY_ON_CONNECT, "LoadData", id)
+	}
+}
+
+public client_disconnect(id)
+{
+	if(g_iSaveChoice)
+		UseVault(id, true)
 }
 
 public OnEmitSound(id, iChannel, const szSample[])
@@ -217,7 +304,16 @@ public ShowMenu(id)
 		copy(szItem, charsmax(szItem), eKnife[NAME])
 		
 		if(g_bRankSystem && eKnife[LEVEL] && iLevel < eKnife[LEVEL])
-			format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_LEVEL", eKnife[LEVEL])
+		{
+			if(eKnife[SHOW_RANK])
+			{
+				static szRank[32]
+				crxranks_get_rank_by_level(eKnife[LEVEL], szRank, charsmax(szRank))
+				format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_RANK", szRank)
+			}
+			else
+				format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_LEVEL", eKnife[LEVEL])
+		}
 		
 		if(eKnife[FLAG] != ADMIN_ALL && !(iFlags & eKnife[FLAG]))
 			format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_VIP_ONLY")
@@ -244,35 +340,25 @@ public MenuHandler(id, iMenu, iItem)
 	{
 		g_iKnife[id] = iItem
 		ArrayGetArray(g_aKnives, iItem, g_eKnife[id])
+		RefreshKnifeModel(id)
 		
-		if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
-			RefreshKnifeModel(id)
-		
-		new szName[32], iUnused
+		new szName[MAX_NAME_LENGTH], iUnused
 		menu_item_getinfo(iMenu, iItem, iUnused, szName, charsmax(szName), .callback = iUnused)
 		CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_CHAT_SELECTED", szName)
+		
+		if(g_eKnife[id][SELECT_SOUND][0])
+			PlayKnifeSound(id, g_eKnife[id][SELECT_SOUND])
 	}
 	
 	menu_destroy(iMenu)
 	return PLUGIN_HANDLED
 }
 
+public LoadData(id)
+	UseVault(id, false)
+
 public CheckKnifeAccess(id, iMenu, iItem)
-{
-	if(g_iKnife[id] == iItem)
-		return ITEM_DISABLED
-		
-	static eKnife[Knives]
-	ArrayGetArray(g_aKnives, iItem, eKnife)
-	
-	if(g_bRankSystem && eKnife[LEVEL] && crxranks_get_user_level(id) < eKnife[LEVEL])
-		return ITEM_DISABLED
-		
-	if(eKnife[FLAG] != ADMIN_ALL && !(get_user_flags(id) & eKnife[FLAG]))
-		return ITEM_DISABLED
-		
-	return ITEM_ENABLED
-}
+	return ((g_iKnife[id] == iItem) || !HasKnifeAccess(id, iItem)) ? ITEM_DISABLED : ITEM_ENABLED
 
 public OnPlayerSpawn(id)
 {
@@ -286,15 +372,16 @@ public OnPlayerSpawn(id)
 public OnSelectKnife(iEnt)
 {
 	new id = pev(iEnt, pev_owner)
-	
-	if(is_user_connected(id))
-		RefreshKnifeModel(id)
+	RefreshKnifeModel(id)
 }
 
-RefreshKnifeModel(id)
+RefreshKnifeModel(const id)
 {
-	set_pev(id, pev_viewmodel2, g_eKnife[id][V_MODEL])
-	set_pev(id, pev_weaponmodel2, g_eKnife[id][P_MODEL])
+	if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
+	{
+		set_pev(id, pev_viewmodel2, g_eKnife[id][V_MODEL])
+		set_pev(id, pev_weaponmodel2, g_eKnife[id][P_MODEL])
+	}
 }
 
 PushKnife(eKnife[Knives])
@@ -306,6 +393,20 @@ PushKnife(eKnife[Knives])
 		copy(eKnife[P_MODEL], charsmax(eKnife[P_MODEL]), DEFAULT_P)
 		
 	ArrayPushArray(g_aKnives, eKnife)
+}
+
+bool:HasKnifeAccess(const id, const iKnife)
+{		
+	static eKnife[Knives]
+	ArrayGetArray(g_aKnives, iKnife, eKnife)
+	
+	if(g_bRankSystem && eKnife[LEVEL] && crxranks_get_user_level(id) < eKnife[LEVEL])
+		return false
+		
+	if(eKnife[FLAG] != ADMIN_ALL && !(get_user_flags(id) & eKnife[FLAG]))
+		return false
+		
+	return true
 }
 
 bool:IsKnifeSound(const szSample[])
@@ -328,5 +429,26 @@ DetectKnifeSound(const szSample[])
 	return iSound
 }
 
-PlayKnifeSound(id, const szSound[])
+UseVault(const id, const bool:bSave)
+{
+	if(bSave)
+	{
+		static szData[4]
+		num_to_str(g_iKnife[id], szData, charsmax(szData))
+		nvault_set(g_iVault, g_szAuth[id], szData)
+	}
+	else
+	{
+		static iKnife
+		iKnife = nvault_get(g_iVault, g_szAuth[id])
+		
+		if(iKnife && HasKnifeAccess(id, iKnife))
+		{
+			g_iKnife[id] = iKnife
+			RefreshKnifeModel(id)
+		}
+	}
+}
+
+PlayKnifeSound(const id, const szSound[])
 	engfunc(EngFunc_EmitSound, id, CHAN_AUTO, szSound, 1.0, ATTN_NORM, 0, PITCH_NORM)
