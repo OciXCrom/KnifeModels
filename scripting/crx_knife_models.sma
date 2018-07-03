@@ -20,7 +20,7 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.4"
+#define PLUGIN_VERSION "2.4.1"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define DELAY_ON_CONNECT 2.5
@@ -340,7 +340,9 @@ public MenuHandler(id, iMenu, iItem)
 	{
 		g_iKnife[id] = iItem
 		ArrayGetArray(g_aKnives, iItem, g_eKnife[id])
-		RefreshKnifeModel(id)
+		
+		if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
+			RefreshKnifeModel(id)
 		
 		new szName[MAX_NAME_LENGTH], iUnused
 		menu_item_getinfo(iMenu, iItem, iUnused, szName, charsmax(szName), .callback = iUnused)
@@ -377,11 +379,8 @@ public OnSelectKnife(iEnt)
 
 RefreshKnifeModel(const id)
 {
-	if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
-	{
-		set_pev(id, pev_viewmodel2, g_eKnife[id][V_MODEL])
-		set_pev(id, pev_weaponmodel2, g_eKnife[id][P_MODEL])
-	}
+	set_pev(id, pev_viewmodel2, g_eKnife[id][V_MODEL])
+	set_pev(id, pev_weaponmodel2, g_eKnife[id][P_MODEL])
 }
 
 PushKnife(eKnife[Knives])
@@ -448,7 +447,9 @@ UseVault(const id, const bool:bSave)
 		if(iKnife && HasKnifeAccess(id, iKnife))
 		{
 			g_iKnife[id] = iKnife
-			RefreshKnifeModel(id)
+			
+			if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
+				RefreshKnifeModel(id)
 		}
 	}
 }
