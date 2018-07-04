@@ -20,7 +20,7 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.4.1"
+#define PLUGIN_VERSION "2.4.2"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define DELAY_ON_CONNECT 2.5
@@ -85,9 +85,9 @@ public plugin_init()
 	
 	register_dictionary("KnifeModels.txt")
 	
-	RegisterHam(Ham_Item_Deploy, "weapon_knife", "OnSelectKnife", 1)
 	RegisterHam(Ham_Spawn, "player", "OnPlayerSpawn", 1)
 	register_forward(FM_EmitSound,	"OnEmitSound")
+	register_event("CurWeapon", "OnSelectKnife", "be", "1=1", "2=29")
 	
 	register_clcmd("say /knife", "ShowMenu")
 	register_clcmd("say_team /knife", "ShowMenu")
@@ -371,11 +371,8 @@ public OnPlayerSpawn(id)
 	}
 }
 
-public OnSelectKnife(iEnt)
-{
-	new id = pev(iEnt, pev_owner)
+public OnSelectKnife(id)
 	RefreshKnifeModel(id)
-}
 
 RefreshKnifeModel(const id)
 {
