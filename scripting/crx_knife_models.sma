@@ -8,12 +8,14 @@
 native crxranks_get_max_levels()
 native crxranks_get_rank_by_level(level, buffer[], len)
 native crxranks_get_user_level(id)
+native crxranks_get_user_xp(id)
 
 new const g_szNatives[][] =
 {
 	"crxranks_get_max_levels",
 	"crxranks_get_rank_by_level",
-	"crxranks_get_user_level"
+	"crxranks_get_user_level",
+	"crxranks_get_user_xp"
 }
 
 #if !defined m_pPlayer
@@ -24,7 +26,7 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.4.3"
+#define PLUGIN_VERSION "2.5"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define DELAY_ON_CONNECT 2.5
@@ -63,12 +65,15 @@ enum _:Knives
 	FLAG,
 	LEVEL,
 	bool:SHOW_RANK,
-	bool:HAS_CUSTOM_SOUND
+	bool:HAS_CUSTOM_SOUND,
+	XP
 }
 
 new Array:g_aKnives,
 	bool:g_bFirstTime[MAX_PLAYERS + 1],
 	bool:g_bRankSystem,
+	bool:g_bGetLevel,
+	bool:g_bGetXP,
 	g_eKnife[MAX_PLAYERS + 1][Knives],
 	g_szAuth[MAX_PLAYERS + 1][MAX_AUTHID_LENGTH],
 	g_iKnife[MAX_PLAYERS + 1],
@@ -195,6 +200,7 @@ ReadFile()
 						{
 							eKnife[LEVEL] = 0
 							eKnife[SHOW_RANK] = false
+							eKnife[XP] = 0
 						}
 					}
 					else continue
@@ -208,9 +214,21 @@ ReadFile()
 					if(equal(szKey, "FLAG"))
 						eKnife[FLAG] = read_flags(szValue)
 					else if(equal(szKey, "LEVEL") && g_bRankSystem)
+					{
 						eKnife[LEVEL] = clamp(str_to_num(szValue), 0, iMaxLevels)
+						
+						if(!g_bGetLevel)
+							g_bGetLevel = true
+					}
 					else if(equal(szKey, "SHOW_RANK") && g_bRankSystem)
 						eKnife[SHOW_RANK] = _:clamp(str_to_num(szValue), false, true)
+					else if(equal(szKey, "XP") && g_bRankSystem)
+					{
+						eKnife[XP] = _:clamp(str_to_num(szValue), 0)
+						
+						if(!g_bGetXP)
+							g_bGetXP = true
+					}
 					else if(equal(szKey, "V_MODEL"))
 						copy(eKnife[V_MODEL], charsmax(eKnife[V_MODEL]), szValue)
 					else if(equal(szKey, "P_MODEL"))
@@ -294,11 +312,14 @@ public OnEmitSound(id, iChannel, const szSample[])
 public ShowMenu(id)
 {
 	static eKnife[Knives]
-	new szTitle[128], szItem[128], iLevel
+	new szTitle[128], szItem[128], iLevel, iXP
 	formatex(szTitle, charsmax(szTitle), "%L", id, "KM_MENU_TITLE")
 
-	if(g_bRankSystem)
+	if(g_bGetLevel)
 		iLevel = crxranks_get_user_level(id)
+	
+	if(g_bGetXP)
+		iXP = crxranks_get_user_xp(id)
 		
 	new iMenu = menu_create(szTitle, "MenuHandler")
 	
@@ -307,16 +328,22 @@ public ShowMenu(id)
 		ArrayGetArray(g_aKnives, i, eKnife)
 		copy(szItem, charsmax(szItem), eKnife[NAME])
 		
-		if(g_bRankSystem && eKnife[LEVEL] && iLevel < eKnife[LEVEL])
+		if(g_bRankSystem)
 		{
-			if(eKnife[SHOW_RANK])
+			if(eKnife[LEVEL] && iLevel < eKnife[LEVEL])
 			{
-				static szRank[32]
-				crxranks_get_rank_by_level(eKnife[LEVEL], szRank, charsmax(szRank))
-				format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_RANK", szRank)
+				if(eKnife[SHOW_RANK])
+				{
+					static szRank[32]
+					crxranks_get_rank_by_level(eKnife[LEVEL], szRank, charsmax(szRank))
+					format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_RANK", szRank)
+				}
+				else
+					format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_LEVEL", eKnife[LEVEL])
 			}
-			else
-				format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_LEVEL", eKnife[LEVEL])
+			
+			if(eKnife[XP] && iXP < eKnife[XP])
+				format(szItem, charsmax(szItem), "%s %L", szItem, id, "KM_MENU_XP", eKnife[XP])
 		}
 		
 		if(eKnife[FLAG] != ADMIN_ALL && !(iFlags & eKnife[FLAG]))
@@ -400,8 +427,14 @@ bool:HasKnifeAccess(const id, const iKnife)
 	static eKnife[Knives]
 	ArrayGetArray(g_aKnives, iKnife, eKnife)
 	
-	if(g_bRankSystem && eKnife[LEVEL] && crxranks_get_user_level(id) < eKnife[LEVEL])
-		return false
+	if(g_bRankSystem)
+	{
+		if(eKnife[LEVEL] && crxranks_get_user_level(id) < eKnife[LEVEL])
+			return false
+			
+		if(eKnife[XP] && crxranks_get_user_xp(id) < eKnife[XP])
+			return false
+	}
 		
 	if(eKnife[FLAG] != ADMIN_ALL && !(get_user_flags(id) & eKnife[FLAG]))
 		return false
