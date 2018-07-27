@@ -407,7 +407,7 @@ public OnSelectKnife(iEnt)
 	new id = get_pdata_cbase(iEnt, m_pPlayer)
 	
 	if(is_user_connected(id))
-		RefreshKnifeModel()
+		RefreshKnifeModel(id)
 }
 
 RefreshKnifeModel(const id)
