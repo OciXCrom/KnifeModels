@@ -26,7 +26,7 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.5"
+#define PLUGIN_VERSION "2.5.1"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define DELAY_ON_CONNECT 2.5
@@ -403,7 +403,12 @@ public OnPlayerSpawn(id)
 }
 
 public OnSelectKnife(iEnt)
-	RefreshKnifeModel(get_pdata_cbase(iEnt, m_pPlayer))
+{
+	new id = get_pdata_cbase(iEnt, m_pPlayer)
+	
+	if(is_user_connected(id))
+		RefreshKnifeModel()
+}
 
 RefreshKnifeModel(const id)
 {
