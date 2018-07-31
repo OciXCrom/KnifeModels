@@ -18,10 +18,6 @@ new const g_szNatives[][] =
 	"crxranks_get_user_xp"
 }
 
-#if !defined m_pPlayer
-    #define m_pPlayer 41
-#endif
-
 #if defined client_disconnected
 	#define client_disconnect client_disconnected
 #endif
