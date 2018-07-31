@@ -26,7 +26,7 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.5.3"
+#define PLUGIN_VERSION "2.5.4"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define MAX_SOUND_LENGTH 128
@@ -253,10 +253,18 @@ ReadFile()
 					static const szSoundArg[] = "_SOUND"
 					
 					if(contain(szKey, szModelArg) != -1)
-						precache_model(szValue)
+					{
+						if(!file_exists(szValue))
+							log_amx("ERROR: model ^"%s^" not found!", szValue)
+						else
+							precache_model(szValue)
+					}
 					else if(contain(szKey, szSoundArg) != -1)
 					{
-						precache_sound(szValue)
+						if(!file_exists(szValue))
+							log_amx("ERROR: sound ^"%s^" not found!", szValue)
+						else
+							precache_sound(szValue)
 						
 						if(bCustom)
 							eKnife[HAS_CUSTOM_SOUND] = true
