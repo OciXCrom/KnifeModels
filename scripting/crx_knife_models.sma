@@ -26,10 +26,9 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.5.1"
+#define PLUGIN_VERSION "2.5.3"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
-#define DELAY_ON_CONNECT 2.5
 #define MAX_SOUND_LENGTH 128
 #define MAX_AUTHID_LENGTH 35
 
@@ -96,7 +95,7 @@ public plugin_init()
 	
 	RegisterHam(Ham_Spawn, "player", "OnPlayerSpawn", 1)
 	register_forward(FM_EmitSound,	"OnEmitSound")
-	RegisterHam(Ham_Item_Deploy, "weapon_knife", "OnSelectKnife", 1)
+	register_event("CurWeapon", "OnSelectKnife", "be", "1=1", "2=29")
 	
 	register_clcmd("say /knife", "ShowMenu")
 	register_clcmd("say_team /knife", "ShowMenu")
@@ -273,7 +272,7 @@ ReadFile()
 	}
 }
 
-public client_authorized(id)
+public client_connect(id)
 {
 	g_bFirstTime[id] = true
 	ArrayGetArray(g_aKnives, 0, g_eKnife[id])
@@ -282,7 +281,7 @@ public client_authorized(id)
 	if(g_iSaveChoice)
 	{
 		get_user_authid(id, g_szAuth[id], charsmax(g_szAuth[]))
-		set_task(DELAY_ON_CONNECT, "LoadData", id)
+		LoadData(id)
 	}
 }
 
@@ -387,7 +386,7 @@ public MenuHandler(id, iMenu, iItem)
 	return PLUGIN_HANDLED
 }
 
-public LoadData(id)
+LoadData(id)
 	UseVault(id, false)
 
 public CheckKnifeAccess(id, iMenu, iItem)
@@ -402,13 +401,8 @@ public OnPlayerSpawn(id)
 	}
 }
 
-public OnSelectKnife(iEnt)
-{
-	new id = get_pdata_cbase(iEnt, m_pPlayer)
-	
-	if(is_user_connected(id))
-		RefreshKnifeModel(id)
-}
+public OnSelectKnife(id)
+	RefreshKnifeModel(id)
 
 RefreshKnifeModel(const id)
 {
@@ -486,6 +480,7 @@ UseVault(const id, const bool:bSave)
 		if(iKnife && HasKnifeAccess(id, iKnife))
 		{
 			g_iKnife[id] = iKnife
+			ArrayGetArray(g_aKnives, iKnife, g_eKnife[id])
 			
 			if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
 				RefreshKnifeModel(id)
