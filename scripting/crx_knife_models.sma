@@ -22,11 +22,12 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.5.4"
+#define PLUGIN_VERSION "2.5.5"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define MAX_SOUND_LENGTH 128
 #define MAX_AUTHID_LENGTH 35
+#define DELAY_ON_CONNECT 2.0
 
 #if !defined MAX_NAME_LENGTH
 	#define MAX_NAME_LENGTH 32
@@ -480,15 +481,23 @@ UseVault(const id, const bool:bSave)
 		
 		if(iKnife > g_iKnivesNum)
 			iKnife = 0
-		
-		if(iKnife && HasKnifeAccess(id, iKnife))
-		{
-			g_iKnife[id] = iKnife
-			ArrayGetArray(g_aKnives, iKnife, g_eKnife[id])
+
+		g_iKnife[id] = iKnife
+		set_task(DELAY_ON_CONNECT, "CheckKnifeOnConnect", id)
+	}
+}
+
+public CheckKnifeOnConnect(id)
+{
+	if(!is_user_connected(id))
+		return
+
+	if(g_iKnife[id] && HasKnifeAccess(id, g_iKnife[id]))
+	{
+		ArrayGetArray(g_aKnives, g_iKnife[id], g_eKnife[id])
 			
-			if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
-				RefreshKnifeModel(id)
-		}
+		if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
+			RefreshKnifeModel(id)
 	}
 }
 
