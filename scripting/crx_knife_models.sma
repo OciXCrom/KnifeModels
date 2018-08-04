@@ -18,11 +18,15 @@ new const g_szNatives[][] =
 	"crxranks_get_user_xp"
 }
 
+#if !defined m_pPlayer
+	#define m_pPlayer 41
+#endif
+
 #if defined client_disconnected
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.5.5"
+#define PLUGIN_VERSION "2.5.6"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define MAX_SOUND_LENGTH 128
@@ -92,7 +96,7 @@ public plugin_init()
 	
 	RegisterHam(Ham_Spawn, "player", "OnPlayerSpawn", 1)
 	register_forward(FM_EmitSound,	"OnEmitSound")
-	register_event("CurWeapon", "OnSelectKnife", "be", "1=1", "2=29")
+	RegisterHam(Ham_Item_Deploy, "weapon_knife", "OnSelectKnife", 1)
 	
 	register_clcmd("say /knife", "ShowMenu")
 	register_clcmd("say_team /knife", "ShowMenu")
@@ -406,8 +410,13 @@ public OnPlayerSpawn(id)
 	}
 }
 
-public OnSelectKnife(id)
-	RefreshKnifeModel(id)
+public OnSelectKnife(iEnt)
+{
+	new id = get_pdata_cbase(iEnt, m_pPlayer, 4)
+	
+	if(is_user_connected(id))
+		RefreshKnifeModel(id)
+}
 
 RefreshKnifeModel(const id)
 {
