@@ -26,12 +26,11 @@ new const g_szNatives[][] =
 	#define client_disconnect client_disconnected
 #endif
 
-#define PLUGIN_VERSION "2.5.6"
+#define PLUGIN_VERSION "2.5.7"
 #define DEFAULT_V "models/v_knife.mdl"
 #define DEFAULT_P "models/p_knife.mdl"
 #define MAX_SOUND_LENGTH 128
 #define MAX_AUTHID_LENGTH 35
-#define DELAY_ON_CONNECT 2.0
 
 #if !defined MAX_NAME_LENGTH
 	#define MAX_NAME_LENGTH 32
@@ -159,7 +158,7 @@ ReadFile()
 	
 	if(iFilePointer)
 	{
-		new szData[160], szKey[32], szValue[128], iMaxLevels
+		new szData[160], szKey[32], szValue[128], szSound[128], iMaxLevels
 		new eKnife[Knives], bool:bCustom
 		
 		if(g_bRankSystem)
@@ -262,8 +261,10 @@ ReadFile()
 					}
 					else if(contain(szKey, szSoundArg) != -1)
 					{
-						if(!file_exists(szValue))
-							log_amx("ERROR: sound ^"%s^" not found!", szValue)
+						formatex(szSound, charsmax(szSound), "sound/%s", szValue)
+
+						if(!file_exists(szSound))
+							log_amx("ERROR: sound ^"%s^" not found!", szSound)
 						else
 							precache_sound(szValue)
 						
@@ -290,7 +291,7 @@ public client_connect(id)
 	if(g_iSaveChoice)
 	{
 		get_user_authid(id, g_szAuth[id], charsmax(g_szAuth[]))
-		LoadData(id)
+		UseVault(id, false)
 	}
 }
 
@@ -395,9 +396,6 @@ public MenuHandler(id, iMenu, iItem)
 	return PLUGIN_HANDLED
 }
 
-LoadData(id)
-	UseVault(id, false)
-
 public CheckKnifeAccess(id, iMenu, iItem)
 	return ((g_iKnife[id] == iItem) || !HasKnifeAccess(id, iItem)) ? ITEM_DISABLED : ITEM_ENABLED
 
@@ -492,21 +490,22 @@ UseVault(const id, const bool:bSave)
 			iKnife = 0
 
 		g_iKnife[id] = iKnife
-		set_task(DELAY_ON_CONNECT, "CheckKnifeOnConnect", id)
+		CheckKnifeOnConnect(id)
 	}
 }
 
 public CheckKnifeOnConnect(id)
 {
-	if(!is_user_connected(id))
-		return
-
-	if(g_iKnife[id] && HasKnifeAccess(id, g_iKnife[id]))
+	if(g_iKnife[id])
 	{
-		ArrayGetArray(g_aKnives, g_iKnife[id], g_eKnife[id])
+		if(_:HasKnifeAccess(id, g_iKnife[id]) == ITEM_ENABLED)
+		{
+			ArrayGetArray(g_aKnives, g_iKnife[id], g_eKnife[id])
 			
-		if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
-			RefreshKnifeModel(id)
+			if(is_user_alive(id) && get_user_weapon(id) == CSW_KNIFE)
+				RefreshKnifeModel(id)
+		}
+		else g_iKnife[id] = 0
 	}
 }
 
