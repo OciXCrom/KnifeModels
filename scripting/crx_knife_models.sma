@@ -77,8 +77,8 @@ enum _:CvarsReg
 	cvar_km_open_at_spawn,
 	cvar_km_save_choice,
 	cvar_km_only_dead,
-	cvar_km_knife_only_skills,
-	cvar_km_select_message
+	cvar_km_select_message,
+	cvar_km_knife_only_skills
 }
 
 enum _:Cvars
@@ -86,8 +86,8 @@ enum _:Cvars
 	km_open_at_spawn,
 	km_save_choice,
 	km_only_dead,
-	km_knife_only_skills,
-	km_select_message
+	km_select_message,
+	km_knife_only_skills
 }
 
 new Array:g_aKnives,
@@ -135,8 +135,8 @@ public plugin_init()
 	g_eCvarsReg[cvar_km_open_at_spawn]     = register_cvar("km_open_at_spawn",     "0")
 	g_eCvarsReg[cvar_km_save_choice]       = register_cvar("km_save_choice",       "1")
 	g_eCvarsReg[cvar_km_only_dead]         = register_cvar("km_only_dead",         "0")
-	g_eCvarsReg[cvar_km_knife_only_skills] = register_cvar("km_knife_only_skills", "1")
 	g_eCvarsReg[cvar_km_select_message]    = register_cvar("km_select_message",    "1")
+	g_eCvarsReg[cvar_km_knife_only_skills] = register_cvar("km_knife_only_skills", "1")
 }
 
 public plugin_precache()
@@ -155,8 +155,8 @@ public plugin_cfg()
 	g_eCvars[km_save_choice]       = get_pcvar_num(g_eCvarsReg[cvar_km_save_choice])
 	g_eCvars[km_open_at_spawn]     = get_pcvar_num(g_eCvarsReg[cvar_km_open_at_spawn])
 	g_eCvars[km_only_dead]         = get_pcvar_num(g_eCvarsReg[cvar_km_only_dead])
-	g_eCvars[km_knife_only_skills] = get_pcvar_num(g_eCvarsReg[cvar_km_knife_only_skills])
 	g_eCvars[km_select_message]    = get_pcvar_num(g_eCvarsReg[cvar_km_select_message])
+	g_eCvars[km_knife_only_skills] = get_pcvar_num(g_eCvarsReg[cvar_km_knife_only_skills])
 
 	if(g_eCvars[km_save_choice])
 	{
