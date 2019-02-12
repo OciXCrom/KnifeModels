@@ -8,6 +8,9 @@ KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 KM_MENU_LEVEL = \r[LVL %i]
 KM_MENU_RANK = \r[RANK: %s]
 KM_MENU_XP = \r[XP: %i]
+KM_ONLY_DEAD = You can't change your knife while you're alive.
+KM_INVALID_KNIFE = * That knife doesn't exist. Valid range is from 0 to %i.
+KM_NO_ACCESS = * You have no access to that knife.
 
 [mk] -- OciXCrom
 KM_CHAT_PREFIX = &x04[Knife Models]&x01
@@ -19,6 +22,9 @@ KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 KM_MENU_LEVEL = \r[LVL %i]
 KM_MENU_RANK = \r[RANK: %s]
 KM_MENU_XP = \r[XP: %i]
+KM_ONLY_DEAD = Ne mozhesh da si go menuvash nozhot dodeka si zhiv.
+KM_INVALID_KNIFE = * Nozhot ne postoi. Validni nozhevi se od 0 do %i.
+KM_NO_ACCESS = * Nemash dostap do toj nozh.
 
 [bg] -- OciXCrom
 KM_CHAT_PREFIX = &x04[Knife Models]&x01
@@ -30,6 +36,9 @@ KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 KM_MENU_LEVEL = \r[LVL %i]
 KM_MENU_RANK = \r[RANK: %s]
 KM_MENU_XP = \r[XP: %i]
+KM_ONLY_DEAD = Ne mojesh da promenqsh noja si dokato si jiv.
+KM_INVALID_KNIFE = * Nojut ne sushtestvuva. Validni nojove sa ot 0 do %i.
+KM_NO_ACCESS = * Nqmash dostup do tozi noj.
 
 [ro] -- Visinescu
 KM_CHAT_PREFIX = &x04[Modele cutit]&x01
@@ -54,11 +63,11 @@ KM_MENU_RANK = \r[RANK: %s]
 KM_MENU_XP = \r[XP: %i]
 
 [bp] -- EFFx
-KM_CHAT_PREFIX = &x04[Knife Models]&x01 
+KM_CHAT_PREFIX = &x04[Knife Models]&x01
 KM_CHAT_SELECTED = Voce selecionou a faca &x04%s&x01.
-KM_MENU_TITLE = \y< \rEscolha sua skin \y> 
-KM_MENU_TITLE_PAGE = ^n\r-- \yPagina:\r 
-KM_MENU_SELECTED = \y~ \rSELECIONADA \y~ 
+KM_MENU_TITLE = \y< \rEscolha sua skin \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yPagina:\r
+KM_MENU_SELECTED = \y~ \rSELECIONADA \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 KM_MENU_LEVEL = \r[LVL %i]
 KM_MENU_RANK = \r[RANK: %s]
