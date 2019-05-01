@@ -27,7 +27,8 @@ const m_pPlayer = 41
 	#define client_disconnected client_disconnect
 #endif
 
-new const PLUGIN_VERSION[] = "3.0"
+new const PLUGIN_VERSION[] = "3.1"
+const Float:DELAY_ON_CONNECT = 3.0
 
 #if !defined MAX_AUTHID_LENGTH
 const MAX_AUTHID_LENGTH = 35
@@ -78,7 +79,8 @@ enum _:CvarsReg
 	cvar_km_save_choice,
 	cvar_km_only_dead,
 	cvar_km_select_message,
-	cvar_km_knife_only_skills
+	cvar_km_knife_only_skills,
+	cvar_km_admin_bypass
 }
 
 enum _:Cvars
@@ -87,7 +89,8 @@ enum _:Cvars
 	km_save_choice,
 	km_only_dead,
 	km_select_message,
-	km_knife_only_skills
+	km_knife_only_skills,
+	km_admin_bypass
 }
 
 new Array:g_aKnives,
@@ -137,6 +140,7 @@ public plugin_init()
 	g_eCvarsReg[cvar_km_only_dead]         = register_cvar("km_only_dead",         "0")
 	g_eCvarsReg[cvar_km_select_message]    = register_cvar("km_select_message",    "1")
 	g_eCvarsReg[cvar_km_knife_only_skills] = register_cvar("km_knife_only_skills", "1")
+	g_eCvarsReg[cvar_km_admin_bypass]      = register_cvar("km_admin_bypass",      "0")
 }
 
 public plugin_precache()
@@ -157,6 +161,7 @@ public plugin_cfg()
 	g_eCvars[km_only_dead]         = get_pcvar_num(g_eCvarsReg[cvar_km_only_dead])
 	g_eCvars[km_select_message]    = get_pcvar_num(g_eCvarsReg[cvar_km_select_message])
 	g_eCvars[km_knife_only_skills] = get_pcvar_num(g_eCvarsReg[cvar_km_knife_only_skills])
+	g_eCvars[km_admin_bypass]      = get_pcvar_num(g_eCvarsReg[cvar_km_admin_bypass])
 
 	if(g_eCvars[km_save_choice])
 	{
@@ -378,7 +383,7 @@ public client_connect(id)
 	if(g_eCvars[km_save_choice])
 	{
 		get_user_authid(id, g_szAuth[id], charsmax(g_szAuth[]))
-		use_vault(id, false)
+		set_task(DELAY_ON_CONNECT, "load_data", id)
 	}
 }
 
@@ -578,6 +583,14 @@ select_knife(id, iKnife)
 	}
 }
 
+public load_data(id)
+{
+	if(is_user_connected(id))
+	{
+		use_vault(id, false)
+	}
+}
+
 public CheckKnifeAccess(id, iMenu, iItem)
 {
 	return ((g_iKnife[id] == iItem) || !has_knife_access(id, iItem)) ? ITEM_DISABLED : ITEM_ENABLED
@@ -633,6 +646,21 @@ bool:has_knife_access(const id, const iKnife)
 	static eKnife[Knives]
 	ArrayGetArray(g_aKnives, iKnife, eKnife)
 
+	if(eKnife[FLAG] != ADMIN_ALL)
+	{
+		if(get_user_flags(id) & eKnife[FLAG])
+		{
+			if(g_eCvars[km_admin_bypass])
+			{
+				return true
+			}
+		}
+		else
+		{
+			return false
+		}
+	}
+
 	if(g_bRankSystem)
 	{
 		if(eKnife[LEVEL] && crxranks_get_user_level(id) < eKnife[LEVEL])
@@ -644,11 +672,6 @@ bool:has_knife_access(const id, const iKnife)
 		{
 			return false
 		}
-	}
-
-	if(eKnife[FLAG] != ADMIN_ALL && !(get_user_flags(id) & eKnife[FLAG]))
-	{
-		return false
 	}
 
 	return true
