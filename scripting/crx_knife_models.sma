@@ -27,7 +27,7 @@ const m_pPlayer = 41
 	#define client_disconnected client_disconnect
 #endif
 
-new const PLUGIN_VERSION[] = "3.1"
+new const PLUGIN_VERSION[] = "3.1.1"
 const Float:DELAY_ON_CONNECT = 3.0
 
 #if !defined MAX_AUTHID_LENGTH
@@ -418,7 +418,7 @@ public Cmd_Knife(id)
 {
 	if(g_eCvars[km_only_dead] && is_user_alive(id))
 	{
-		CC_SendMessage(id, "%l %l", "KM_CHAT_PREFIX", "KM_ONLY_DEAD")
+		CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_ONLY_DEAD")
 		return PLUGIN_HANDLED
 	}
 
@@ -497,7 +497,7 @@ public Cmd_Select(id, iLevel, iCid)
 
 	if(g_eCvars[km_only_dead] && is_user_alive(id))
 	{
-		CC_SendMessage(id, "%l %l", "KM_CHAT_PREFIX", "KM_ONLY_DEAD")
+		CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_ONLY_DEAD")
 		return PLUGIN_HANDLED
 	}
 
@@ -526,7 +526,7 @@ public MenuHandler(id, iMenu, iItem)
 {
 	if(g_eCvars[km_only_dead] && is_user_alive(id))
 	{
-		CC_SendMessage(id, "%l %l", "KM_CHAT_PREFIX", "KM_ONLY_DEAD")
+		CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_ONLY_DEAD")
 		goto @MENU_DESTROY
 	}
 
@@ -566,7 +566,7 @@ select_knife(id, iKnife)
 
 	if(g_eCvars[km_select_message])
 	{
-		CC_SendMessage(id, "%l %l", "KM_CHAT_PREFIX", "KM_CHAT_SELECTED", g_eKnife[id][NAME])
+		CC_SendMessage(id, "%L %L", id, "KM_CHAT_PREFIX", id, "KM_CHAT_SELECTED", g_eKnife[id][NAME])
 	}
 
 	if(g_eKnife[id][SELECT_MESSAGES_NUM])
