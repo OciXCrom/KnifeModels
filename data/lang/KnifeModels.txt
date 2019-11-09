@@ -108,10 +108,10 @@ KM_MENU_XP = \r[XP: %i]
 
 [de] -- LegacyCode
 KM_CHAT_PREFIX = &x04[Messer Models]&x01
-KM_CHAT_SELECTED = Du hast das Messer &x04%s &x01ausgew�hlt.
-KM_MENU_TITLE = \y< \rW�hle dein Messer aus \y>
+KM_CHAT_SELECTED = Du hast das Messer &x04%s &x01ausgewählt.
+KM_MENU_TITLE = \y< \rWähle dein Messer aus \y>
 KM_MENU_TITLE_PAGE = ^n\r-- \ySeite:\r
-KM_MENU_SELECTED = \y~ \rAUSGEW�HLT \y~
+KM_MENU_SELECTED = \y~ \rAUSGEWÄHLT \y~
 KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 KM_MENU_LEVEL = \r[LVL %i]
 KM_MENU_RANK = \r[RANK: %s]
@@ -138,3 +138,17 @@ KM_MENU_VIP_ONLY = \y~ \rVIP \y~
 KM_MENU_LEVEL = \r[LVL %i]
 KM_MENU_RANK = \r[RANK: %s]
 KM_MENU_XP = \r[XP: %i]
+
+[ru] -- kaldun89
+KM_CHAT_PREFIX = &x04[Модели ножей]&x01
+KM_CHAT_SELECTED = Вы выбрали нож &x04%s&x01.
+KM_MENU_TITLE = \y< \rВыберите модель вашего ножа \y>
+KM_MENU_TITLE_PAGE = ^n\r-- \yСтраница:\r
+KM_MENU_SELECTED = \y~ \rВЫБРАН \y~
+KM_MENU_VIP_ONLY = \y~ \rВИП \y~
+KM_MENU_LEVEL = \r[Ур. %i]
+KM_MENU_RANK = \r[Ранг: %s]
+KM_MENU_XP = \r[Экспа: %i]
+KM_ONLY_DEAD = Пока вы живы вы не можете поменять свой нож.
+KM_INVALID_KNIFE = * Этого ножа не существует. Допустимый диапазон от 0 до %i.
+KM_NO_ACCESS = * У вас нет доступа к этому ножу.
